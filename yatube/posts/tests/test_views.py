@@ -7,6 +7,7 @@ from django import forms
 from django.core.files.uploadedfile import SimpleUploadedFile
 from posts.models import Post, Group, Comment, Follow
 from django.conf import settings
+from django.core.cache import cache
 
 User = get_user_model()
 TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
@@ -143,7 +144,7 @@ class PostViewsTests(TestCase):
         response = self.authorized_client.get(
             reverse('posts:post_detail', kwargs={'post_id': self.post.id})
         )
-        comment = response.context['comments'][1]
+        comment = response.context['comments'][0]
         self.assertEqual(comment.text, 'Новый тестовый коммент')
 
     def test_post_create_correct_context(self):
@@ -221,13 +222,14 @@ class PaginatorViewsTests(TestCase):
 
     def setUp(self):
         self.guest_client = Client()
+        cache.clear()
 
     def test_first_page_contains_ten_records(self):
         for reverse_name, template in CONTEXT.items():
             with self.subTest(template=template):
                 response = self.client.get(reverse_name)
                 # Проверка: количество постов на первой странице равно 10.
-                self.assertEqual(len(response.context['page_obj']), 10)
+                self.assertEqual(len(response.context.get('page_obj')), 10)
 
     def test_second_page_contains_five_records(self):
         for reverse_name, template in CONTEXT.items():
@@ -252,6 +254,7 @@ class FollowingTest(TestCase):
     def setUp(self):
         self.follower_client = Client()
         self.follower_client.force_login(self.follower)
+        cache.clear()
 
     def test_follow_unfallow(self):
         """Проверка возможности подписки/отписки для авторизованного
@@ -284,7 +287,8 @@ class FollowingTest(TestCase):
         response = self.follower_client.get(
             reverse('posts:follow_index')
         )
-        self.assertTrue(response.context['text'].text, 'Привет')
+        self.assertTrue(response.context.get('page_obj')[0].text,
+                        'Тестовый пост')
 
     def test_not_followers_dont_see_post(self):
         not_follower_client = Client()

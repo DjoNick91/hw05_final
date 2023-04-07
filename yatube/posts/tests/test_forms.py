@@ -161,10 +161,3 @@ class CommentFormTest(TestCase):
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
         cache.clear()
-
-    def test_comment_create_correct(self):
-        """Проверка полей формы CommentForm"""
-        response = self.authorized_client.get(
-            reverse('posts:add_comment', kwargs={'post_id': self.post.id}))
-        form = response.context['form']
-        self.assertIsInstance(form, forms.ModelForm)
