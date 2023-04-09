@@ -2,6 +2,7 @@ from django.test import TestCase, Client
 from django.contrib.auth import get_user_model
 from ..models import Post, Group
 from http import HTTPStatus
+from django.core.cache import cache
 
 User = get_user_model()
 
@@ -26,35 +27,43 @@ class PostURLTest(TestCase):
         self.guest_client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
+        cache.clear()
 
     def test_url_for_all(self):
-        template_urls = {'': 200,
-                         '/group/Тестовый слаг/': HTTPStatus.OK,
-                         '/profile/TestUser/': HTTPStatus.OK,
-                         '/posts/1/': HTTPStatus.OK,
-                         }
-        for template, code in template_urls.items():
-            with self.subTest(url=template):
-                response = self.guest_client.get(template)
+        """Страницы доступны любому пользователю"""
+        urls_code = {'': HTTPStatus.OK,
+                     '/index.html': HTTPStatus.OK,
+                     '/group/Тестовый слаг/': HTTPStatus.OK,
+                     '/profile/TestUser/': HTTPStatus.OK,
+                     '/posts/1/': HTTPStatus.OK,
+                     }
+        for url, code in urls_code.items():
+            with self.subTest(url=url):
+                response = self.guest_client.get(url)
                 self.assertEqual(response.status_code, code)
 
     def test_url_for_autorized(self):
-        response = self.authorized_client.get('/create/')
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-
-    def test_edit_post(self):
-        if self.authorized_client == self.post.author:
-            response = self.authorized_client.get('/posts/1/edit/')
-            self.assertEqual(response.status_code, HTTPStatus.OK)
+        """Страницы доступны только авторизованному пользователю"""
+        urls_code = {'/create/': HTTPStatus.OK,
+                     '/posts/1/edit/': HTTPStatus.OK,
+                     '/follow/': HTTPStatus.OK,
+                     }
+        for url, code in urls_code.items():
+            with self.subTest(url=url):
+                response = self.authorized_client.get(url)
+                self.assertEqual(response.status_code, code)
 
     def test_urls_uses_correct_template(self):
         """URL-адрес использует соответствующий шаблон."""
         templates_url_names = {
+            '': 'posts/index.html',
+            '/index.html': 'posts/index.html',
             '/group/Тестовый слаг/': 'posts/group_list.html',
             '/profile/TestUser/': 'posts/profile.html',
             '/posts/1/': 'posts/post_detail.html',
             '/posts/1/edit/': 'posts/create_post.html',
             '/create/': 'posts/create_post.html',
+            '/follow/': 'posts/follow.html',
         }
         for url, template in templates_url_names.items():
             with self.subTest(url=url):

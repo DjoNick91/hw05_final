@@ -58,11 +58,12 @@ class PostViewsTests(TestCase):
         self.guest_client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
+        cache.clear()
 
     def test_pages_uses_correct_template(self):
         """URL-адрес использует соответствующий шаблон."""
         templates_page_names = {
-            # reverse('posts:index'): 'posts/index.html',
+            reverse('posts:index'): 'posts/index.html',
             reverse('posts:group_list', kwargs={'slug': 'Тестовый слаг'}):
             'posts/group_list.html',
             reverse('posts:profile', kwargs={'username': 'TestUser'}):
@@ -81,7 +82,7 @@ class PostViewsTests(TestCase):
     def test_home_page_show_correct_context(self):
         """Шаблон index, group_list, profile с правильным контекстом."""
         names_pages = [
-            # reverse('posts:index'),
+            reverse('posts:index'),
             reverse('posts:group_list', kwargs={'slug': 'Тестовый слаг'}),
             reverse('posts:profile', kwargs={'username': 'TestUser'})
         ]

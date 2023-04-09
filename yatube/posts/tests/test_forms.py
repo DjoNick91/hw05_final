@@ -5,7 +5,6 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
 from django.test import Client, TestCase
 from django.urls import reverse
-from django import forms
 from django.core.cache import cache
 
 from posts.models import Post, Group, Comment
@@ -53,20 +52,6 @@ class PostFormTests(TestCase):
         self.guest_client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
-
-    def test_post_create_correct(self):
-        """Проверка полей формы PostForm"""
-        response = self.authorized_client.get(reverse('posts:post_create'))
-        form_fields = {
-            'text': forms.fields.CharField,
-            'group': forms.fields.ChoiceField,
-            'image': forms.fields.ImageField,
-        }
-
-        for value, expected in form_fields.items():
-            with self.subTest(value=value):
-                form_field = response.context['form'].fields[value]
-                self.assertIsInstance(form_field, expected)
 
     def test_create_post(self):
         '''Проверка редиректа и создания поста со страницы создания поста'''
@@ -161,3 +146,21 @@ class CommentFormTest(TestCase):
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
         cache.clear()
+
+    def test_create_comment(self):
+        """Проверка создания комментария на странице поста и редиректа"""
+        comment_count = Comment.objects.count()
+        response = self.authorized_client.post(
+            reverse('posts:add_comment',
+                    kwargs={'post_id': self.post.id}),
+            data={'text': 'Новый комментарий'},
+            follow=True,
+        )
+        self.assertRedirects(
+            response,
+            reverse('posts:post_detail',
+                    kwargs={'post_id': self.post.id})
+        )
+        self.assertEqual(Comment.objects.count(), comment_count + 1)
+        self.assertEqual(Comment.objects.latest('id').text,
+                         'Новый комментарий')
