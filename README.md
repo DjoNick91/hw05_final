@@ -7,7 +7,7 @@
 
      
 ## Установка   
-1) Клонировать репозиторий на локальный компьютер `git@github.com:DjoNick91/api_final_yatube.git`
+1) Клонировать репозиторий на локальный компьютер `git@github.com:DjoNick91/hw05_final.git`
 2) Создать виртуальное окружение `python -m venv env`
 3) Активировать виртуальное окружение `source env/script/activate`
 4) Установить зависимости `pip install -r requirements`    
