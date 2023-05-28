@@ -1,3 +1,26 @@
-# hw05_final
+# Учебный проект Яндекс Практикума     
+## Социальная сеть   
+Небольшая социальная сеть, в которой придусмотрена возможность регистрации пользователей, создания постов и комментариев.    
+Подключена и настроена стандартная админка __Djago__, пагинация и работа с изображениями.     
+Реализована система подписок пользователей на авторов постов.    
+Используется защита от CSRF-атак на  основе CSRF-токенов.
 
-[![CI](https://github.com/yandex-praktikum/hw05_final/actions/workflows/python-app.yml/badge.svg?branch=master)](https://github.com/yandex-praktikum/hw05_final/actions/workflows/python-app.yml)
+     
+## Установка   
+1) Клонировать репозиторий на локальный компьютер `git@github.com:DjoNick91/api_final_yatube.git`
+2) Создать виртуальное окружение `python -m venv env`
+3) Активировать виртуальное окружение `source env/script/activate`
+4) Установить зависимости `pip install -r requirements`    
+   
+ ## Использование
+ Перейдите в папку с файлом __manage.py__ и  выполните коммпанду `python manage.py runserver`
+ ### Доступные эндпоинты
+ `/index` Главная страница проекта   
+ `/auth/signup/` Регистрация нового пользователя   
+ `/auth/login/` Авторизация   
+ `/about/author/` Страница об авторе   
+ `/about/tech/`  Страница используемых  технологий
+ 
+ ## Автор  проекта   
+ __Ивашин Евгений__ <DjoNick91@gmail.com>
+ 
